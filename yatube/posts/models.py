@@ -9,7 +9,7 @@ class Group(models.Model):
     )
     slug = models.SlugField(
         unique=True,
-        verbose_name='Адрес'
+        verbose_name='Адрес для ЧПУ'
     )
     description = models.TextField(
         verbose_name='Описание группы'
