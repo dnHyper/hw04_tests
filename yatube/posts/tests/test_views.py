@@ -3,29 +3,30 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from posts.models import Post, Group, User
-from yatube.settings import NUMBER_OF_PAGES
+from yatube.settings import NUMBER_OF_POSTS
 
 
 class PostPagesTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.author = User.objects.create_user(username='Author')
+        cls.authorized_client = Client()
 
         cls.group = Group.objects.create(
             title='Группа Test',
             slug='test_group',
             description='Описание тестовой группы'
         )
+        cls.post = Post.objects.create(
+            text='Проверка',
+            author=cls.author,
+            group=cls.group
+        )
 
     def setUp(self):
-        self.author = User.objects.create_user(username='Author')
-        self.authorized_client = Client()
         self.authorized_client.force_login(self.author)
-        self.post = Post.objects.create(
-            text='Проверка',
-            author=self.author,
-            group=self.group
-        )
+
         self.templates_url_names = {
             reverse('posts:index'): 'posts/index.html',
             reverse('posts:groups'): 'posts/groups.html',
@@ -103,12 +104,12 @@ class PaginatorViewsTest(TestCase):
             slug='test_group',
             description='Описание тестовой группы'
         )
-        cls.add_pages = random.randint(1, 9)
-        obj_post = (Post(text='Проверка',
-                         author=cls.author,
-                         group=cls.group
-                         ) for i in range(NUMBER_OF_PAGES + cls.add_pages))
-        cls.post = Post.objects.bulk_create(obj_post)
+        cls.add_pages = random.randint(1, NUMBER_OF_POSTS - 1)
+        obj_posts = (Post(text='Проверка',
+                          author=cls.author,
+                          group=cls.group
+                          ) for i in range(NUMBER_OF_POSTS + cls.add_pages))
+        cls.post = Post.objects.bulk_create(obj_posts)
         cls.urls_paginator = {
             reverse('posts:index'),
             reverse('posts:group_list', kwargs={'slug': cls.group.slug}),
@@ -116,14 +117,18 @@ class PaginatorViewsTest(TestCase):
         }
 
     def test_first_page_contains_ten_records(self):
-        """Paginator: вывод 10 постов на первую страницу."""
+        """
+        Paginator: проверка вывода постов на первую страницу.
+
+        Количество выводимых постов получается из константы NUMBER_OF_POSTS.
+        """
         for url in self.urls_paginator:
             response = self.authorized_client.get(url)
             self.assertEqual(len(response.context['page_obj']),
-                             NUMBER_OF_PAGES)
+                             NUMBER_OF_POSTS)
 
     def test_second_page_contains_three_records(self):
-        """Paginator: вывод 3 постов на вторую страницу."""
+        """Paginator: проверка вывода нескольких постов на вторую страницу."""
         for url in self.urls_paginator:
             response = self.client.get(url + '?page=2')
             self.assertEqual(len(response.context['page_obj']),

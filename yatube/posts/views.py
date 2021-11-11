@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.http import JsonResponse
 from django.db.models import Count
 
-from yatube.settings import (EMAIL_ADMIN, NUMBER_OF_PAGES,
+from yatube.settings import (EMAIL_ADMIN, NUMBER_OF_POSTS,
                              NUMBER_OF_GROUP_PAGES)
 
 from .forms import FeedBackForm, PostForm
@@ -21,7 +21,7 @@ def index(request):
     """Вывод главной страницы + лайки"""
     posts = Post.objects.select_related('group', 'author').annotate(
         count=Count('posts'))
-    paginator = Paginator(posts, NUMBER_OF_PAGES)
+    paginator = Paginator(posts, NUMBER_OF_POSTS)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {'page_obj': page_obj, }
@@ -33,7 +33,7 @@ def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts = group.posts.select_related('author').annotate(
         count=Count('posts'))
-    paginator = Paginator(posts, NUMBER_OF_PAGES)
+    paginator = Paginator(posts, NUMBER_OF_POSTS)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {'page_obj': page_obj,
@@ -56,7 +56,7 @@ def profile(request, username):
     user = get_object_or_404(User, username=username)
     posts = user.posts.select_related('author', 'group').annotate(
         count=Count('posts'))
-    paginator = Paginator(posts, NUMBER_OF_PAGES)
+    paginator = Paginator(posts, NUMBER_OF_POSTS)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {'username': user,

@@ -37,7 +37,7 @@ class PostModelTest(TestCase):
     def test_post_have_correct_object_names(self):
         """Posts: Проверяем, что у модели Post корректно работает __str__."""
         expected_object_name = self.post.text[:25]
-        self.assertEqual(expected_object_name, str(expected_object_name))
+        self.assertEqual(expected_object_name, str(self.post))
 
 
 class GroupModelTest(TestCase):
@@ -69,4 +69,4 @@ class GroupModelTest(TestCase):
     def test_group_have_correct_object_names(self):
         """Posts: Проверяем, что у модели Group корректно работает __str__."""
         expected_object_name = self.group.title
-        self.assertEqual(expected_object_name, str(expected_object_name))
+        self.assertEqual(expected_object_name, str(self.group))

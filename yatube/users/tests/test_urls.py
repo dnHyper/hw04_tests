@@ -9,13 +9,12 @@ class UsersURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.guest_client = Client()
+        cls.authorized_user = User.objects.create_user(username='User')
+        cls.uid = 'test-uid'
+        cls.token = 'test-token'
+        cls.authorized_client = Client()
 
     def setUp(self):
-        self.authorized_user = User.objects.create_user(username='User')
-        self.uid = 'test-uid'
-        self.token = 'test-token'
-        self.authorized_client = Client()
         self.authorized_client.force_login(self.authorized_user)
         self.templates_url_names = {
             reverse('users:login'): 'users/login.html',
@@ -45,7 +44,7 @@ class UsersURLTests(TestCase):
 
         for field, expected_value in guest_url.items():
             with self.subTest(field=field):
-                response = self.guest_client.get(expected_value)
+                response = self.client.get(expected_value)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_urls_uses_correct_template(self):
@@ -63,6 +62,6 @@ class UsersURLTests(TestCase):
         }
         for reverse_name, redirect_url in guest_url.items():
             with self.subTest(reverse_name=reverse_name):
-                response = self.guest_client.get(reverse(reverse_name))
+                response = self.client.get(reverse(reverse_name))
                 self.assertRedirects(response,
                                      reverse('users:login') + redirect_url)

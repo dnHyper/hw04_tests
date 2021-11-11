@@ -2,21 +2,18 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from posts.models import Post, User, Group
-from posts.forms import PostForm
 
 
 class PostCreateFormTest(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.guest_client = Client()
 
         cls.group = Group.objects.create(
             title='Группа Test',
             slug='test_group',
             description='Описание тестовой группы'
         )
-        cls.form = PostForm()
 
     def setUp(self):
         self.author = User.objects.create_user(username='Author')
@@ -45,12 +42,10 @@ class PostCreateFormTest(TestCase):
             'posts:profile',
             kwargs={'username': self.author.username})
         )
-        self.assertTrue(
-            Post.objects.filter(
-                text='Тестовый текст',
-                author=self.author,
-            ).exists()
-        )
+        Post.objects.filter(pk=self.post.pk).update(text=form_data['text'])
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.text, form_data['text'])
+        self.assertEqual(self.post.author, self.author)
 
     def test_guest_post_create(self):
         """Post: Проверка создания записи гостем"""
@@ -59,7 +54,7 @@ class PostCreateFormTest(TestCase):
             'text': 'Тестовый текст',
             'group': self.group.id
         }
-        response = self.guest_client.post(
+        response = self.client.post(
             reverse('posts:post_create'),
             data=form_data,
             follow=True
@@ -105,9 +100,10 @@ class PostCreateFormTest(TestCase):
         self.assertRedirects(response, reverse(
             'posts:post_detail', kwargs={'post_id': self.post.id})
         )
-        self.assertTrue(
-            Post.objects.filter(
-                text='Отредактированный текст',
-                group=new_group.id
-            ).exists()
+        Post.objects.filter(pk=self.post.pk).update(
+            text=new_data['text'],
+            group=new_group
         )
+        self.post.refresh_from_db()
+        self.assertEqual(self.post.text, new_data['text'])
+        self.assertEqual(self.post.group, new_group)

@@ -9,8 +9,6 @@ class PostURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.guest_client = Client()
-
         cls.group = Group.objects.create(
             title='Группа Test',
             slug='test_group',
@@ -53,7 +51,7 @@ class PostURLTests(TestCase):
         """Posts: Проверка доступности страниц для гостя"""
         for reverse_name, status in self.url_guest.items():
             with self.subTest(reverse_name=reverse_name):
-                response = self.guest_client.get(reverse_name, follow=True)
+                response = self.client.get(reverse_name, follow=True)
 
                 if status != HTTPStatus.OK and status != HTTPStatus.NOT_FOUND:
                     self.assertRedirects(response, status)
