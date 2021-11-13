@@ -14,25 +14,18 @@ class PostModelTest(TestCase):
             text='Ж' * 100,
         )
 
-    def test_title_label(self):
-        """Posts: verbose_name поля text совпадает с ожидаемым."""
-        verbose = self.post._meta.get_field('text').verbose_name
-        self.assertEqual(verbose, 'Текст сообщения')
-
-    def test_pub_date_label(self):
-        """Posts: verbose_name поля pub_date совпадает с ожидаемым."""
-        verbose = self.post._meta.get_field('pub_date').verbose_name
-        self.assertEqual(verbose, 'Дата публикации')
-
-    def test_author_label(self):
-        """Posts: verbose_name поля author совпадает с ожидаемым."""
-        verbose = self.post._meta.get_field('author').verbose_name
-        self.assertEqual(verbose, 'Автор')
-
-    def test_group_label(self):
-        """Posts: verbose_name поля group совпадает с ожидаемым."""
-        verbose = self.post._meta.get_field('group').verbose_name
-        self.assertEqual(verbose, 'Группа')
+    def test_posts_verbose_name_label(self):
+        """Posts: тестирование у модели Post verbose_name всех полей."""
+        verbose = self.post._meta
+        field_verboses = {
+            'text': 'Текст сообщения',
+            'pub_date': 'Дата публикации',
+            'author': 'Автор',
+            'group': 'Группа'
+        }
+        for field, value in field_verboses.items():
+            with self.subTest(field=field):
+                self.assertEqual(verbose.get_field(field).verbose_name, value)
 
     def test_post_have_correct_object_names(self):
         """Posts: Проверяем, что у модели Post корректно работает __str__."""
@@ -52,19 +45,16 @@ class GroupModelTest(TestCase):
         )
 
     def test_title_label(self):
-        """Posts: verbose_name поля title совпадает с ожидаемым."""
-        verbose = self.group._meta.get_field('title').verbose_name
-        self.assertEqual(verbose, 'Имя группы')
-
-    def test_slug_label(self):
-        """Posts: verbose_name поля slug совпадает с ожидаемым."""
-        verbose = self.group._meta.get_field('slug').verbose_name
-        self.assertEqual(verbose, 'Адрес для ЧПУ')
-
-    def test_description_label(self):
-        """Posts: verbose_name поля description совпадает с ожидаемым."""
-        verbose = self.group._meta.get_field('description').verbose_name
-        self.assertEqual(verbose, 'Описание группы')
+        """Posts: тестирование у модели Group verbose_name всех полей."""
+        verbose = self.group._meta
+        field_verboses = {
+            'title': 'Имя группы',
+            'slug': 'Адрес для ЧПУ',
+            'description': 'Описание группы',
+        }
+        for field, value in field_verboses.items():
+            with self.subTest(field=field):
+                self.assertEqual(verbose.get_field(field).verbose_name, value)
 
     def test_group_have_correct_object_names(self):
         """Posts: Проверяем, что у модели Group корректно работает __str__."""
