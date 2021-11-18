@@ -24,7 +24,7 @@
 Создайте и активируйте виртуальное окружение
 
     python3 -m venv venv
-    source venv/Scripts/activate
+    source venv/bin/activate
 
 Установие зависимости из файла requirements.txt
 
